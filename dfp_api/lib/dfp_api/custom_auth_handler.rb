@@ -25,10 +25,9 @@ module DfpApi
     def get_token(credentials = nil)
       return @token if @token && credentials.blank?
       if (Time.now.to_i - credentials[:issued_at]) > 3300
-        @token ||= refresh_token!
+        @token = refresh_token!
       else
-        new_token = token_from_credentials(credentials)
-        @token ||= new_token if !@token || new_token[:issued_at] == @token[:issued_at]
+        @token ||= token_from_credentials(credentials)
       end
     end
 
