@@ -28,7 +28,6 @@ module DfpApi
 
     # Initializes CredentialHandler.
     def initialize(config)
-      puts 'init cred handler...'
       @config = config
       @auth_handler = nil
       @credentials = config.read('authentication')

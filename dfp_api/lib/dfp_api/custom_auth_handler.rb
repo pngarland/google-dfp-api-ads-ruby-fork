@@ -2,8 +2,10 @@ module DfpApi
   class CustomAuthHandler
 
     def initialize(config, scope)
-      puts 'init custom auth handler...'
-      @config = config
+      @config = config.read('authentication')[:oauth2_token]
+      @network_id = @config[:network_id]
+      @refresh_token = @config[:refresh_token]
+      @token = get_token(@config)
       @scope = scope
     end
 
@@ -16,16 +18,12 @@ module DfpApi
     end
 
     def auth_string(credentials)
-      puts 'auth_string...'
-      creds = credentials[:oauth2_token]
-      @network_id = creds[:network_id]
-      @refresh_token = creds[:refresh_token]
-      token = get_token(credentials[:oauth2_token])
-      format('Bearer %s', token[:access_token])
+      token = get_token(@token)
+      @token = token unless token[:issued_at] == @token[:issued_at]
+      format('Bearer %s', @token[:access_token])
     end
 
     def get_token(credentials = nil)
-      puts 'get token...'
       if (Time.now.to_i - credentials[:issued_at]) > 3300
         refresh_token!
       else
@@ -34,6 +32,7 @@ module DfpApi
     end
 
     def refresh_token!()
+      puts 'refreshing token...'
       @client ||= create_client
       auth_params = {
         refresh_token: @refresh_token,
@@ -43,7 +42,7 @@ module DfpApi
       }
       response = @client.post('/o/oauth2/token', auth_params)
       if response.status == 200
-        @token = token_from_response(response)
+        token_from_response(response)
       else
         raise format('problem with refresh token: %s', response.body)
       end
