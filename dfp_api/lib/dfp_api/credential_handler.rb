@@ -21,14 +21,16 @@
 
 require 'ads_common/credential_handler'
 require 'dfp_api/api_config'
+require 'dfp_api/custom_auth_handler'
 
 module DfpApi
   class CredentialHandler < AdsCommon::CredentialHandler
 
     # Initializes CredentialHandler.
     def initialize(config)
+      puts 'hitting init...'
       @config = config
-      @auth_handler = nil
+      @auth_handler = DfpApi::CustomAuthHandler
       @credentials = config.read('authentication')
     end
 
