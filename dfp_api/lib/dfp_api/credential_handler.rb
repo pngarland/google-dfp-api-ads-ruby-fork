@@ -24,6 +24,14 @@ require 'dfp_api/api_config'
 
 module DfpApi
   class CredentialHandler < AdsCommon::CredentialHandler
+
+    # Initializes CredentialHandler.
+    def initialize(config)
+      @config = config
+      @auth_handler = nil
+      @credentials = config.read('authentication')
+    end
+
     # Create the list of credentials to be used by the auth handler for header
     # generation.
     def credentials(credentials_override = nil)
