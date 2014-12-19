@@ -5,7 +5,7 @@ module DfpApi
       @config = config.read('authentication')[:oauth2_token]
       @network_id = @config[:network_id]
       @refresh_token = @config[:refresh_token]
-      @token = get_token(@config)
+      get_token(@config)
       @scope = scope
     end
 
@@ -19,15 +19,16 @@ module DfpApi
 
     def auth_string(credentials)
       token = get_token(@token)
-      @token = token unless token[:issued_at] == @token[:issued_at]
       format('Bearer %s', @token[:access_token])
     end
 
     def get_token(credentials = nil)
+      return @token if @token && credentials.blank?
       if (Time.now.to_i - credentials[:issued_at]) > 3300
-        refresh_token!
+        @token ||= refresh_token!
       else
-        token_from_credentials(credentials)
+        new_token = token_from_credentials(credentials)
+        @token ||= new_token if !@token || new_token[:issued_at] == @token[:issued_at]
       end
     end
 
