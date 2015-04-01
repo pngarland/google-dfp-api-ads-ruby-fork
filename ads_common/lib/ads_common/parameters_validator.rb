@@ -118,7 +118,7 @@ module AdsCommon
 
     # Checks if no extra fields provided outside of known ones.
     def check_extra_fields(args_hash, known_fields)
-      extra_fields = args_hash.deep_symbolize_keys.keys - known_fields - IGNORED_HASH_KEYS
+      extra_fields = args_hash.keys - known_fields - IGNORED_HASH_KEYS
       unless extra_fields.empty?
         raise AdsCommon::Errors::UnexpectedParametersError.new(extra_fields)
       end
